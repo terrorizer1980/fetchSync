@@ -2,6 +2,9 @@
   "name": "@the-bds-maneger/fetchsync",
   "version": "1.0.0",
   "description": "Fetch Sync",
+  "publishConfig": {
+      "access": "public"
+  },
   "main": "index.js",
   "scripts": {
     "test": "node test.js"
