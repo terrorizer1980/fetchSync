@@ -1,0 +1,28 @@
+{
+  "name": "@the-bds-maneger/fetchsync",
+  "version": "1.0.0",
+  "description": "Fetch Sync",
+  "main": "index.js",
+  "scripts": {
+    "test": "node test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/The-Bds-Maneger/fetchSync.git"
+  },
+  "keywords": [
+    "fetch"
+  ],
+  "author": "The Bds Maneger Project",
+  "license": "AGPL-3.0-or-later",
+  "bugs": {
+    "url": "https://github.com/The-Bds-Maneger/fetchSync/issues"
+  },
+  "engines": {
+    "node": ">=14"
+  },
+  "homepage": "https://github.com/The-Bds-Maneger/fetchSync#readme",
+  "dependencies": {
+    "node-fetch": "^2.6.1"
+  }
+}

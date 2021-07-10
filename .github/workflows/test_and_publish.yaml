@@ -1,0 +1,46 @@
+on: [push]
+
+jobs:
+  test:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@master
+      - name: Npm and Node Setup
+        uses: actions/setup-node@v2.2.0
+        with:
+          node-version: 16.x
+
+      - name: Install Packages
+        run: npm install
+
+      - name: NPM test
+        run: npm run test
+  Publish:
+    runs-on: ubuntu-latest
+    needs: [test]
+    steps:
+      - name: Checkout 
+        uses: actions/checkout@master
+
+      - name: Npm and Node Setup
+        uses: actions/setup-node@v2.2.0
+        with:
+          node-version: 16.x
+          registry-url: https://registry.npmjs.org/
+
+      - name: Edit Version
+        run: |
+          id_run1=$(echo ${{ github.run_id }} |cut -b 1-2)
+          id_run2=$(echo ${{ github.run_id }} |cut -b 3-6)
+          id_run3=$(echo ${{ github.run_id }} |cut -b 7-)
+          old="$(cat package.json |grep "version"|head -1)"
+          new_version="$id_run1.$id_run2.$id_run3"
+          sed "s|$old|\"version\": \"$new_version\",|g" package.json | tee package.json
+      - name: Install Packages
+        run: npm install
+
+      - name: NPM Publish
+        run: npm publish
+        env:
+          NODE_AUTH_TOKEN: ${{ secrets.DOCKER_ORG_PASS }}
