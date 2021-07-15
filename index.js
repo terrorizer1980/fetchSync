@@ -4,41 +4,51 @@ const child_process = require("child_process");
 const path = require("path");
 const fs = require("fs");
 
-// Exec Functions
-function fetchSync(url = "https://www.google.com/search?q=Is+Test", options = {}, binary = false){
-    if (options.method){if (options.method.toLocaleLowerCase() === "get") throw new Error("Please remove 'get' option from 'method'")}
-    options = JSON.stringify(options)
-    var BufferC;
-    if (binary) {
-        try {
-            BufferC = child_process.execFileSync("node", [path.resolve(__dirname, "./lib/fetchSyncBin.js")], {env: {...process.env, FetchOptions: options, urlRequest: url}}).toString();
-            BufferC = BufferC.split("TmpFetch*****");
-            BufferC = BufferC[BufferC.length - 1];
-            BufferC = BufferC.split("\n").filter(a=>a)[0];
-            const BinaryBuffer = fs.readFileSync(BufferC);
-            fs.rmSync(BufferC);
+function fetchSync(url = "https://google.com", options = {
+    Binary: false,
+    mode: "cors"
+}){
+    try {
+        var ExecResult = child_process.execFileSync("node", [path.resolve(__dirname, "./lib/fetchSync.js")], {
+            env: {
+                ...process.env,
+                urlRequest: url,
+                FetchOptions: JSON.stringify(options)
+            }
+        }).toString("utf8");
+        
+        // Bin Function
+        if (options.Binary) {
+            ExecResult = ExecResult.split("TmpFetch*****");
+            ExecResult = ExecResult[ExecResult.length - 1];
+            ExecResult = ExecResult.split("\n").filter(a=>a);
+            ExecResult = path.resolve(ExecResult)
+            const FsBuffer = fs.readFileSync(ExecResult);
+            fs.rmSync(ExecResult, {force: true})
             return {
-                Buffer: BinaryBuffer,
-                SavePath: function(path = ""){
-                    fs.writeFileSync(path, BinaryBuffer, "binary");
-                    return path;
+                Buffer: FsBuffer,
+                save: function(savePath = "./tmpFile.tmp") {
+                    savePath = path.resolve(savePath)
+                    fs.writeFileSync(savePath, FsBuffer, "binary");
+                    return savePath
                 }
             }
-        } catch (err) {
-            console.log(err)
-        }
-    }
-    else {
-        try {
-            BufferC = child_process.execFileSync("node", [path.resolve(__dirname, "./lib/fetchSync.js")], {env: {...process.env, FetchOptions: options, urlRequest: url}}).toString();
+        } else {
             return {
-                text: function(){return BufferC},
-                json: function (){return JSON.parse(BufferC)},
+                text: function(){return ExecResult},
+                json: function(){return JSON.parse(ExecResult)},
             }
-        } catch (err) {
-            console.log(err);
+        }
+    } catch(err) {
+        const code = err.status;
+        const stdout = err.stdout.toString();
+        const stderr = err.stderr.toString();
+        if (code === 14 || code === 15) {
+            throw {stdout, stderr}
+        } else {
+            throw new Error("uncontrolled code", stdout, stderr)
         }
     }
 }
 
-module.exports = fetchSync;
+module.exports = fetchSync

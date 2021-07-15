@@ -3,13 +3,20 @@ on: [push]
 jobs:
   test:
     runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        node:
+          - 16.x
+          - 15.x
+          - 14.x
+    name: "Node Version: ${{ matrix.node }}"
     steps:
       - name: Checkout 
         uses: actions/checkout@master
       - name: Npm and Node Setup
         uses: actions/setup-node@v2.2.0
         with:
-          node-version: 16.x
+          node-version: "${{ matrix.node }}"
 
       - name: Install Packages
         run: npm install
@@ -38,4 +45,4 @@ jobs:
       - name: NPM Publish
         run: npm publish
         env:
-          NODE_AUTH_TOKEN: ${{ secrets.DOCKER_ORG_PASS }}
+          NODE_AUTH_TOKEN: ${{ secrets.NPM_ORG_TOKEN }}

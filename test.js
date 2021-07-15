@@ -23,12 +23,15 @@ try {
 
 // Php Bin
 try {
-    const php_urls = fetchSync("https://raw.githubusercontent.com/The-Bds-Maneger/Raw_files/main/php_bin.json").json();
+    const php_urls = fetchSync("https://raw.githubusercontent.com/The-Bds-Maneger/Php_Static_Binary/main/binarys.json").json();
     const urlPhp = php_urls["linux"]["x64"];
     console.log(urlPhp);
-    const php_zip = fetchSync(urlPhp, {}, true);
+    const php_zip = fetchSync(urlPhp, {
+        Binary: true
+    });
     php_zip.SavePath(resolve(tmpdir(), Math.random().toString() + "-testTmp.zip"))
 } catch (error) {
     console.log("Unable to download php zip file");
+    console.log(error)
     exit(3);
 }
